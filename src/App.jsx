@@ -29,41 +29,23 @@ function App() {
       completada: false
     };
 
-    const nuevasTareas = [];
-
-    for (let i = 0; i < tareas.length; i++) {
-      nuevasTareas.push(tareas[i]);
-    }
-
-    nuevasTareas.push(tareaNueva);
-
+    const nuevasTareas = [...tareas, tareaNueva];
     setTareas(nuevasTareas);
     setTextoTarea("");
   }
 
   function alternarEstadoTarea(indice) {
-    const nuevasTareas = [];
-
-    for (let i = 0; i < tareas.length; i++) {
-      const tarea = tareas[i];
-
+    const nuevasTareas = tareas.map((tarea, i) => {
       if (i === indice) {
         const tareaNueva = {
-          texto: tarea.texto,
-          fechaCreacion: tarea.fechaCreacion,
+          ...tarea,
           completada: !tarea.completada,
-          fechaTachado: null
+          fechaTachado: tarea.completada ? null : new Date()
         };
-
-        if (tarea.completada === false) {
-          tareaNueva.fechaTachado = new Date();
-        }
-
-        nuevasTareas.push(tareaNueva);
-      } else {
-        nuevasTareas.push(tarea);
+        return tareaNueva;
       }
-    }
+      return tarea;
+    });
 
     setTareas(nuevasTareas);
   }
@@ -75,7 +57,7 @@ function App() {
     for (let i = 0; i < tareas.length; i++) {
       const tarea = tareas[i];
 
-      if (tarea.completada === true && tarea.fechaTachado !== null) {
+      if (tarea.completada && tarea.fechaTachado) {
         const tiempo = tarea.fechaTachado.getTime() - tarea.fechaCreacion.getTime();
 
         if (tareaMasRapida === null || tiempo < tiempoMasCorto) {
@@ -86,8 +68,8 @@ function App() {
     }
 
     if (tareaMasRapida !== null) {
-      const segundos = String(tiempoMasCorto / 1000);
-      const mensaje = 'La tarea más rápida fue "' + tareaMasRapida.texto + '" en ' + segundos + ' segundos.';
+      const segundos = (tiempoMasCorto / 1000).toFixed(2);
+      const mensaje = `La tarea más rápida fue "${tareaMasRapida.texto}" en ${segundos} segundos.`;
       setMensajeTareaRapida(mensaje);
     } else {
       setMensajeTareaRapida("Aún no hay tareas completadas.");
